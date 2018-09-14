@@ -41,8 +41,8 @@ int main() {
 		return 1;
 	}
 
-	unsigned int addrLength = sizeof(serverAddr);
-	connClientSocket = accept(serverSocket, (struct sockaddr *) &serverAddr, &addrLength);
+	unsigned int addrLength = sizeof(connClientAddr);
+	connClientSocket = accept(serverSocket, (struct sockaddr *) &connClientAddr, &addrLength);
 	if (connClientSocket < 0) {
 		perror("Accept error");
 		return 1;
@@ -50,7 +50,9 @@ int main() {
 
 	// Get client info
 	char *clientIpAddr = inet_ntoa(connClientAddr.sin_addr);
-	unsigned short clientPort = connClientAddr.sin_port;
+	int clientPort = ntohs(connClientAddr.sin_port);
+
+	printf("Client address: %s:%d\n", clientIpAddr, clientPort);
 
 	int nbytes;
 
