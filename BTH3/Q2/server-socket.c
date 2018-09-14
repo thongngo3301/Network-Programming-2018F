@@ -3,7 +3,17 @@
 #include<netinet/in.h>
 #include<unistd.h>
 #include<strings.h>
+#include<string.h>
+#include<ctype.h>
 #include<stdio.h>
+
+void toUpperString(char *input) {
+	int i = 0;
+	while (input[i] != '\0') {
+		input[i] = toupper(input[i]);
+		i++;
+	}
+}
 
 int main() {
 	const int _family = AF_INET;	// IPv4
@@ -12,6 +22,7 @@ int main() {
 	const int _port = 9090;
 	const int _listenQueue = 1024;	// Backlog in listen()
 	const int _bufferLength = 1024;
+	const char *_terminateChar = "end";
 
 	int serverSocket, connClientSocket;
 	struct sockaddr_in serverAddr, connClientAddr;
@@ -41,6 +52,8 @@ int main() {
 		return 1;
 	}
 
+	printf("Server is listening at port %d\n", _port);
+
 	unsigned int addrLength = sizeof(connClientAddr);
 	connClientSocket = accept(serverSocket, (struct sockaddr *) &connClientAddr, &addrLength);
 	if (connClientSocket < 0) {
@@ -54,23 +67,20 @@ int main() {
 
 	printf("Client address: %s:%d\n", clientIpAddr, clientPort);
 
-	int nbytes;
-
-	// Receive message from client to server
+	// Receive message from client to server and send back
 	char buffer[_bufferLength];
-	nbytes = read(connClientSocket, buffer, sizeof(buffer));
-	if (nbytes < 0) {
-		perror("Read error");
-		return 1;
-	}
-	printf("Message from client: %s\n", buffer);
 
-	// Send message from server back to client
-	char msg[] = "Hello Client!";
-	nbytes = write(connClientSocket, msg, sizeof(msg));
-	if (nbytes < 0) {
-		perror("Write error");
-		return 1;
+	while (read(connClientSocket, buffer, sizeof(buffer)) > 0) {
+		if (strcmp(buffer, _terminateChar) == 0) {
+			break;
+		}
+
+		//printf("Message from client: %s\n", buffer);
+
+		toUpperString(buffer);
+
+		int retMsgLen = strlen(buffer) + 1;
+		write(connClientSocket, buffer, retMsgLen);
 	}
 
 	close(connClientSocket);

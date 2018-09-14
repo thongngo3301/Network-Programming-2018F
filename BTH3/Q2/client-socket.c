@@ -3,6 +3,7 @@
 #include<netinet/in.h>
 #include<unistd.h>
 #include<strings.h>
+#include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
 
@@ -11,6 +12,7 @@ int main() {
 	const int _type = SOCK_STREAM;	// TCP
 	const int _protocol = 0;
 	const int _bufferLength = 1024;
+	const char *_terminateChar = "end";
 
 	int serverSocket;
 	struct sockaddr_in serverAddr;
@@ -31,6 +33,8 @@ int main() {
 	printf("Server Port: ");
 	scanf("%d", &serverPort);
 
+	getchar();
+
 	serverAddr.sin_addr.s_addr = inet_addr(serverIpAddr);
 	serverAddr.sin_port = htons(serverPort);
 	serverAddr.sin_family = _family;
@@ -42,24 +46,27 @@ int main() {
 		return 1;
 	}
 
-	int nbytes;
+	printf("Start sending messages to server. Send 'end' to stop.\n");
 
-	// Send message from client to server
-	char msg[] = "Hello Server!";
-	nbytes = write(serverSocket, msg, sizeof(msg));
-	if (nbytes < 0) {
-		perror("Write error");
-		return 1;
-	}
+	// Send message from client to server and receive response
+	char sendBuffer[_bufferLength];
+	char receiveBuffer[_bufferLength];
 
-	// Receive message from server to client
-	char buffer[_bufferLength];
-	nbytes = read(serverSocket, buffer, sizeof(buffer));
-	if (nbytes < 0) {
-		perror("Read error");
-		return 1;
+	while (1) {
+		printf("Message: ");
+		fgets(sendBuffer, sizeof(sendBuffer), stdin);
+		sendBuffer[strlen(sendBuffer) - 1] = '\0';
+
+		if (strcmp(sendBuffer, _terminateChar) == 0) {
+			break;
+		}
+
+		int sentMsgLen = strlen(sendBuffer) + 1;		
+		write(serverSocket, sendBuffer, sentMsgLen);
+
+		read(serverSocket, receiveBuffer, sizeof(receiveBuffer));
+		printf("Response from server: %s\n", receiveBuffer);
 	}
-	printf("Message from server: %s\n", buffer);
 
 	close(serverSocket);
 

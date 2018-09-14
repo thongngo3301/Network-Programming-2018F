@@ -41,6 +41,8 @@ int main() {
 		return 1;
 	}
 
+	printf("Server is listening at port %d\n", _port);
+
 	unsigned int addrLength = sizeof(connClientAddr);
 	connClientSocket = accept(serverSocket, (struct sockaddr *) &connClientAddr, &addrLength);
 	if (connClientSocket < 0) {
