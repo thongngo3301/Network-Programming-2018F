@@ -85,6 +85,7 @@ int main() {
 
 	close(connClientSocket);
 	close(serverSocket);
+	printf("Closed connection.\n");
 
 	return 0;
 }

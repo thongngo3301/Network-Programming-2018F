@@ -69,6 +69,7 @@ int main() {
 	}
 
 	close(serverSocket);
+	printf("Closed connection.\n");
 
 	return 0;
 }

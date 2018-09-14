@@ -62,6 +62,7 @@ int main() {
 	printf("Message from server: %s\n", buffer);
 
 	close(serverSocket);
+	printf("Closed connection.\n");
 
 	return 0;
 }
