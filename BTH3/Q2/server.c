@@ -1,3 +1,14 @@
+/**
+ * Name: Ngo Doan Thong
+ * MSSV: 16022451
+ * Description:
+ *    - Server open port to listen to connection from Client
+ *    - Server receive message from Client
+ *    - Server change all characters in message into upper case
+ *    - Server send modified message back to Client
+ *    - When receive terminate character, Server close connection
+**/
+
 #include<sys/socket.h>
 #include<arpa/inet.h>
 #include<netinet/in.h>

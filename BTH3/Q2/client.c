@@ -1,3 +1,14 @@
+/**
+ * Name: Ngo Doan Thong
+ * MSSV: 16022451
+ * Description:
+ *    - User type server's IP address and port from keyboard
+ *    - User type message from keyboard
+ *    - Client read and send message to Server
+ *    - Client display response from Server
+ *    - User type 'end' to close connection
+**/
+
 #include<sys/socket.h>
 #include<arpa/inet.h>
 #include<netinet/in.h>
