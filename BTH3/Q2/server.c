@@ -2,7 +2,6 @@
 #include<arpa/inet.h>
 #include<netinet/in.h>
 #include<unistd.h>
-#include<strings.h>
 #include<string.h>
 #include<ctype.h>
 #include<stdio.h>
