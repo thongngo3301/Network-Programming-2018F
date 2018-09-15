@@ -27,4 +27,4 @@ $(TARGET_CLIENT): $(OBJ_CLIENT)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) *.o *~
+	$(RM) *.o $(shell find . -type f -executable ! -name "*.*")
