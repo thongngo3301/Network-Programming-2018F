@@ -48,7 +48,7 @@ int main() {
 	serverAddr.sin_port = htons(serverPort);
 	serverAddr.sin_family = _family;
 
-	setsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, _bufferLength, sizeof(bufferLength));
+	setsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, (void *)&_bufferLength, sizeof(_bufferLength));
 
 	// Connect to server by using serverSocket
 	int connCheck = connect(serverSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
@@ -57,14 +57,15 @@ int main() {
 		return 1;
 	}
 
-	printf("Connected to server. Send 'QUIT' to stop.\n");
-	printf("Enter file name to download:");
-
-	// Send file name to server and receive file from server
-	char sendBuffer[_bufferLength];
-	char receiveBuffer[_bufferLength];
+	printf("Connected to server.\n");
 
 	while (1) {
+		printf("Enter file name to download, send 'QUIT' to stop: ");
+
+		// Send file name to server and receive file from server
+		char sendBuffer[_bufferLength];
+		char receiveBuffer[_bufferLength];
+		unsigned int fileSize = 0;
 		fgets(sendBuffer, sizeof(sendBuffer), stdin);
 		sendBuffer[strlen(sendBuffer) - 1] = '\0';
 
@@ -75,8 +76,19 @@ int main() {
 		int sentMsgLen = strlen(sendBuffer) + 1;		
 		write(serverSocket, sendBuffer, sentMsgLen);
 
-		read(serverSocket, receiveBuffer, sizeof(receiveBuffer));
-		printf("Response from server: %s\n", receiveBuffer);
+		// Receive file size
+		unsigned int receivedSize = 0;
+		read(serverSocket, &fileSize, sizeof(fileSize));
+		// Receive file
+		FILE *file = fopen(sendBuffer, "wb");
+		while (receivedSize < fileSize) {
+			int currRcvSize = read(serverSocket, receiveBuffer, _bufferLength);
+			receivedSize += currRcvSize;
+			fwrite(receiveBuffer, 1, currRcvSize, file);
+		}
+		printf("Received file '%s' successfully!\n", sendBuffer);
+		printf("Total received file size: %d\n", receivedSize);
+		fclose(file);
 	}
 
 	close(serverSocket);

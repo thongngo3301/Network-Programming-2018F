@@ -71,6 +71,8 @@ int main() {
 		// Read the requested file name
 		while (read(connClientSocket, fileName, sizeof(fileName)) > 0) {
 			if (strcmp(fileName, _terminateChar) == 0) {
+				printf("Session ended");
+				close(connClientSocket);
 				break;
 			}
 			printf("File '%s' is being sent...\n", fileName);
@@ -93,8 +95,6 @@ int main() {
 			}
 			printf("Sent file successfully!\n");
 		}
-		printf("Session ended");
-		close(connClientSocket);
 	}
 	close(serverSocket);
 	printf("Closed connection.\n");
