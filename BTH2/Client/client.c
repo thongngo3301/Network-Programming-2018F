@@ -4,8 +4,8 @@
  * Description:
  *    - User type server's IP address and port from keyboard
  *    - User type message from keyboard
- *    - Client read and send message to Server
- *    - Client display response from Server
+ *    - Client read and send file name to Server
+ *    - Client receive requested file from Server
  *    - User type 'end' to close connection
 **/
 
