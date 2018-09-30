@@ -54,7 +54,7 @@ int main() {
 		return 1;
 	}
 
-	printf("Server is listening at port %d\n", _port);
+	printf("Server is listening at port %d. Waiting for connection...\n", _port);
 
 	unsigned int addrLength = sizeof(connClientAddr);
 
@@ -71,20 +71,25 @@ int main() {
 		// Read the requested file name
 		while (read(connClientSocket, fileName, sizeof(fileName)) > 0) {
 			if (strcmp(fileName, _terminateChar) == 0) {
-				printf("Session ended");
-				close(connClientSocket);
 				break;
 			}
 			printf("File '%s' is being sent...\n", fileName);
 
 			// Get the requested file
 			FILE *file = fopen(fileName, "rb");
+			int size;
+			// Handle error
+			if (file == NULL) {
+				size = 0;
+				write(connClientSocket, (void *) &size, sizeof(int));
+				continue;
+			}
 			// Send file length first
 			fseek(file, 0, SEEK_END);
-			int size = ftell(file);
+			size = ftell(file);
 			fseek(file, 0, SEEK_SET);
 			printf("File size: %d\n", size);
-			write(connClientSocket, (void *)&size, sizeof(int));
+			write(connClientSocket, (void *) &size, sizeof(int));
 			// Send file
 			while (!feof(file)) {
 				// Read file to buffer
@@ -95,6 +100,10 @@ int main() {
 			}
 			printf("Sent file successfully!\n");
 		}
+		printf("Session ended.\n");
+		printf("Server is listening at port %d. Waiting for connection...\n", _port);
+		close(connClientSocket);
+
 	}
 	close(serverSocket);
 	printf("Closed connection.\n");

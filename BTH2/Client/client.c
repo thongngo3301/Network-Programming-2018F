@@ -14,6 +14,7 @@
 #include<netinet/in.h>
 #include<unistd.h>
 #include<string.h>
+#include<time.h>
 #include<stdlib.h>
 #include<stdio.h>
 
@@ -21,7 +22,7 @@ int main() {
 	const int _family = AF_INET;	// IPv4
 	const int _type = SOCK_STREAM;	// TCP
 	const int _protocol = 0;
-	const int _bufferLength = 1024;
+	int _bufferLength;
 	const char *_terminateChar = "QUIT";
 
 	int serverSocket;
@@ -29,6 +30,9 @@ int main() {
 
 	char* serverIpAddr = (char *) malloc(100 * sizeof(char *));
 	int serverPort;
+
+	printf("Set buffer size: ");
+	scanf("%d", &_bufferLength);
 
 	serverSocket = socket(_family, _type, _protocol);
 	if (serverSocket < 0) {
@@ -65,7 +69,6 @@ int main() {
 		// Send file name to server and receive file from server
 		char sendBuffer[_bufferLength];
 		char receiveBuffer[_bufferLength];
-		unsigned int fileSize = 0;
 		fgets(sendBuffer, sizeof(sendBuffer), stdin);
 		sendBuffer[strlen(sendBuffer) - 1] = '\0';
 
@@ -73,12 +76,23 @@ int main() {
 			break;
 		}
 
-		int sentMsgLen = strlen(sendBuffer) + 1;		
+		int sentMsgLen = strlen(sendBuffer) + 1;
+
+		// Calculate time
+		struct timespec startTime, finishTime;
+		clock_gettime(CLOCK_MONOTONIC_RAW, &startTime);
+
 		write(serverSocket, sendBuffer, sentMsgLen);
 
 		// Receive file size
+		unsigned int fileSize = 0;
 		unsigned int receivedSize = 0;
 		read(serverSocket, &fileSize, sizeof(fileSize));
+		// Handle error
+		if (fileSize == 0) {
+			printf("Cannot download file '%s'!\n", sendBuffer);
+			continue;
+		}
 		// Receive file
 		FILE *file = fopen(sendBuffer, "wb");
 		while (receivedSize < fileSize) {
@@ -86,7 +100,9 @@ int main() {
 			receivedSize += currRcvSize;
 			fwrite(receiveBuffer, 1, currRcvSize, file);
 		}
-		printf("Received file '%s' successfully!\n", sendBuffer);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &finishTime);
+		long elapsedTime = (finishTime.tv_sec - startTime.tv_sec)*1e3 + (finishTime.tv_nsec - startTime.tv_nsec)/1e6;
+		printf("Received file '%s' successfully after %ldms!\n", sendBuffer, elapsedTime);
 		printf("Total received file size: %d\n", receivedSize);
 		fclose(file);
 	}
