@@ -73,7 +73,6 @@ int main() {
 			if (strcmp(fileName, _terminateChar) == 0) {
 				break;
 			}
-			printf("File '%s' is being sent...\n", fileName);
 
 			// Get the requested file
 			FILE *file = fopen(fileName, "rb");
@@ -81,9 +80,11 @@ int main() {
 			// Handle error
 			if (file == NULL) {
 				size = 0;
+				printf("Cannot find file '%s'!\n", fileName);
 				write(connClientSocket, (void *) &size, sizeof(int));
 				continue;
 			}
+			printf("File '%s' is being sent...\n", fileName);
 			// Send file length first
 			fseek(file, 0, SEEK_END);
 			size = ftell(file);
