@@ -31,9 +31,6 @@ int main() {
 	char* serverIpAddr = (char *) malloc(100 * sizeof(char *));
 	int serverPort;
 
-	printf("Set buffer size: ");
-	scanf("%d", &_bufferLength);
-
 	serverSocket = socket(_family, _type, _protocol);
 	if (serverSocket < 0) {
 		perror("Server socket error");
@@ -41,6 +38,14 @@ int main() {
 	}
 
 	bzero(&serverAddr, sizeof(serverAddr));
+
+	printf("Set buffer size: ");
+	scanf("%d", &_bufferLength);
+
+	setsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, (void *)&_bufferLength, sizeof(_bufferLength));
+	unsigned int tmpSize = sizeof(_bufferLength);
+	getsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, (void *)&_bufferLength, &tmpSize);
+	printf("Buffer size is set successfully: %d\n", _bufferLength);
 
 	printf("Server IP Address: ");
 	scanf("%s", serverIpAddr);
@@ -51,8 +56,6 @@ int main() {
 	serverAddr.sin_addr.s_addr = inet_addr(serverIpAddr);
 	serverAddr.sin_port = htons(serverPort);
 	serverAddr.sin_family = _family;
-
-	setsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, (void *)&_bufferLength, sizeof(_bufferLength));
 
 	// Connect to server by using serverSocket
 	int connCheck = connect(serverSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
