@@ -16,6 +16,7 @@
 #include<string.h>
 #include<ctype.h>
 #include<signal.h>
+#include<errno.h>
 #include<stdlib.h>
 #include<stdio.h>
 
@@ -71,8 +72,11 @@ int main() {
     while (1) {
         connClientSocket = accept(serverSocket, (struct sockaddr *) &connClientAddr, &addrLength);
         if (connClientSocket < 0) {
-            perror("Accept error");
-            return 1;
+            if (errno == EINTR) continue;
+            else {
+                perror("Accept error");
+                return 1;
+            }
         }
         // Get client info
         pid_t childPid = fork();
