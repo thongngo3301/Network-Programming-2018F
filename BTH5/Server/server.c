@@ -33,12 +33,11 @@ int handleRequest(int connClientSocket) {
     char fileName[_bufferLength];
 
     // Read the requested file name
-    read(connClientSocket, fileName, sizeof(fileName));
-    
-    printf("ten file thang client send: %s\n", fileName);
+    if (read(connClientSocket, fileName, sizeof(fileName)) <= 0) {
+        return 0;
+    }
 
     if (strcmp(fileName, _terminateChar) == 0) {
-        printf("nhap vao QUIT\n");
         return 0;
     }
 
@@ -146,9 +145,7 @@ int main() {
 
         for (fd = 0; fd < FD_SETSIZE; ++fd) {
             if (fd != serverSocket && FD_ISSET(fd, &rfds)) {
-                printf("bbbb FD: %d\n", fd);
                 if (handleRequest(fd) == 0) {
-                    printf("co thang quit\n");
                     close(fd);
                     FD_CLR(fd, &afds);
                     break;

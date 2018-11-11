@@ -75,10 +75,6 @@ int main() {
         fgets(sendBuffer, sizeof(sendBuffer), stdin);
         sendBuffer[strlen(sendBuffer) - 1] = '\0';
 
-        if (strcmp(sendBuffer, _terminateChar) == 0) {
-            break;
-        }
-
         int sentMsgLen = strlen(sendBuffer) + 1;
 
         // Calculate time
@@ -86,6 +82,10 @@ int main() {
         clock_gettime(CLOCK_MONOTONIC_RAW, &startTime);
 
         write(serverSocket, sendBuffer, sentMsgLen);
+
+        if (strcmp(sendBuffer, _terminateChar) == 0) {
+            break;
+        }
 
         // Receive file size
         unsigned int fileSize = 0;
