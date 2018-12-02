@@ -1,0 +1,1 @@
+cd Client && javac Client.java && java Client && del *.class && cd ..
